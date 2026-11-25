@@ -82,6 +82,12 @@ def 概览() -> dict:
             "在缓冲": conn.execute("SELECT COUNT(*) AS c FROM 入窗缓冲 WHERE 命运='在缓冲'").fetchone()["c"],
             "窗切片": conn.execute("SELECT COUNT(*) AS c FROM 窗切片账").fetchone()["c"],
             "迟到": conn.execute("SELECT COUNT(*) AS c FROM 迟到匣").fetchone()["c"],
+            "溢出归档": conn.execute(
+                "SELECT COUNT(*) AS c FROM 溢出裁决账 WHERE 命运='溢入归档'"
+            ).fetchone()["c"],
+            "溢出拒收": conn.execute(
+                "SELECT COUNT(*) AS c FROM 溢出裁决账 WHERE 命运='溢出拒收'"
+            ).fetchone()["c"],
             "窗规": 窗规(),
         }
     finally:

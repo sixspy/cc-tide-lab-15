@@ -3,6 +3,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pathlib import Path
 from app.services import 目录, 装载, 关窗, 贯验, 夹具, 统计, 说明
+from app.modules import 缓冲溢出策略 as 溢出
 
 
 async def api_概览(request: Request):
@@ -89,6 +90,16 @@ async def api_空桩(request: Request):
     return JSONResponse({"空桩": out, "条数": len(out)})
 
 
+async def api_溢出裁决(request: Request):
+    # 新增溢出裁决只读接口：阈值、现行条数、拒因或归档键、valid
+    return JSONResponse(溢出.裁决只读())
+
+
+async def api_溢出账(request: Request):
+    # 只读归档旁路：读引用与 /api/入窗缓冲 不同
+    return JSONResponse(溢出.溢出账列表())
+
+
 路由表 = [
     Route("/api/概览", api_概览),
     Route("/api/仓情", api_仓情),
@@ -107,5 +118,7 @@ async def api_空桩(request: Request):
     Route("/api/窗贯验/跑", api_贯验, methods=["POST"]),
     Route("/api/统计/观测命运", api_统计观测),
     Route("/api/统计/缓冲命运", api_统计缓冲),
+    Route("/api/溢出裁决", api_溢出裁决),
+    Route("/api/溢出裁决账", api_溢出账),
     Route("/api/空桩", api_空桩),
 ]

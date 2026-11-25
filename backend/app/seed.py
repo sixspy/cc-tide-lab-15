@@ -72,6 +72,21 @@ CREATE TABLE IF NOT EXISTS 关窗批次 (
   成片数 INTEGER NOT NULL DEFAULT 0,
   报告 TEXT NOT NULL DEFAULT '{}'
 );
+CREATE TABLE IF NOT EXISTS 溢出裁决账 (
+  编号 INTEGER PRIMARY KEY AUTOINCREMENT,
+  归档键 TEXT NOT NULL UNIQUE,
+  批次编号 TEXT NOT NULL,
+  事件编号 TEXT NOT NULL,
+  运单键 TEXT NOT NULL,
+  网点键 TEXT NOT NULL,
+  事件时 TEXT NOT NULL,
+  窗号 TEXT NOT NULL,
+  策略 TEXT NOT NULL,
+  命运 TEXT NOT NULL,
+  拒因 TEXT NOT NULL DEFAULT '',
+  水位指纹 TEXT NOT NULL,
+  入册时 TEXT NOT NULL
+);
 """
 
 
@@ -90,6 +105,8 @@ def 初始化库() -> None:
             "当前窗号": "W-demo",
             "窗起": "2026-11-24T00:00:00Z",
             "窗止": "2026-11-24T01:00:00Z",
+            "入窗缓冲阈值": "0",
+            "缓冲溢出策略": "切流拒",
         }.items():
             conn.execute("INSERT INTO 窗规(键,值) VALUES (?,?)", (k, v))
     if conn.execute("SELECT COUNT(*) AS c FROM 网点源").fetchone()["c"] == 0:
@@ -101,5 +118,10 @@ def 初始化库() -> None:
             conn.execute(
                 "INSERT INTO 网点源(源键,名称,区域,说明) VALUES (?,?,?,?)", row
             )
+    # 老库补窗规键：阈值缺省 0=不限，策略缺省切流拒（基线行为不变）
+    for k, v in (("入窗缓冲阈值", "0"), ("缓冲溢出策略", "切流拒")):
+        conn.execute(
+            "INSERT OR IGNORE INTO 窗规(键,值) VALUES (?,?)", (k, v)
+        )
     conn.commit()
     conn.close()

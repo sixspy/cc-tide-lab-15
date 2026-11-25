@@ -47,6 +47,14 @@
         <pre class="回执" id="规">加载中…</pre>
       </section>
       <section class="卷">
+        <h2>缓冲溢出策略</h2>
+        <p class="说明" id="溢出规">加载中…</p>
+        <div class="双栏">
+          <p class="说明">入窗缓冲阈值与缓冲溢出策略随窗规同票读写。阈值 0=不限；切流拒超阈整票拒并钉水位指纹，双写归档把溢出点送只读归档旁路，现行缓冲只读阈内集。裁决只读接口：<code>GET /api/溢出裁决</code>，归档旁路：<code>GET /api/溢出裁决账</code>。</p>
+          <div class="侧注">读阈写命运同事务；并发超阈不双涨。去潮切台改阈值并灌「超阈样例」。</div>
+        </div>
+      </section>
+      <section class="卷">
         <h2>空桩目录</h2>
         <p class="说明" id="空桩"></p>
         <div class="双栏">
@@ -56,7 +64,13 @@
       </section>
       <script>
       (async () => {
-        document.getElementById("规").textContent = JSON.stringify(await 潮切.getJSON("/api/窗规"), null, 2);
+        const 规 = await 潮切.getJSON("/api/窗规");
+        document.getElementById("规").textContent = JSON.stringify(规, null, 2);
+        const a = await 潮切.getJSON("/api/溢出裁决");
+        const 态 = a.valid ? 潮切.徽章("valid", "好") : 潮切.徽章("超阈", "危");
+        document.getElementById("溢出规").innerHTML =
+          `阈值 <b>${a["阈值"]}</b> · 策略 <b>${潮切.安全文本(a["策略"])}</b> · 现行条数 <b>${a["现行条数"]}</b> ${态}` +
+          (a["水位指纹"] ? ` · 指纹 ${潮切.安全文本(a["水位指纹"])}` : "");
         const s = await 潮切.getJSON("/api/空桩");
         document.getElementById("空桩").textContent = "空桩 " + s.条数 + "：" + (s.空桩 || []).join(" · ");
       })();

@@ -182,7 +182,7 @@ a { color: var(--teal); text-decoration: none; }
 
 .水位 {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
 }
 .水卡 {
@@ -191,6 +191,9 @@ a { color: var(--teal); text-decoration: none; }
   border-radius: 12px;
   padding: 14px;
 }
+.水卡.警 { border-color: var(--amber); }
+.水卡.危 { border-color: var(--danger); background: linear-gradient(180deg, #fff, #fbeaea); }
+.水卡.危 .数 { color: var(--danger); }
 .水卡 .数 {
   font-family: var(--display);
   font-size: 30px;
@@ -198,6 +201,7 @@ a { color: var(--teal); text-decoration: none; }
   color: var(--amber);
 }
 .水卡 .标 { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.水卡 .副 { margin-top: 2px; color: var(--muted); font-size: 11px; word-break: break-all; }
 
 .工具 { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .按钮 {

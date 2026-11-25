@@ -27,20 +27,25 @@ function 空态(文) {
   return `<p class="说明条">${文}</p>`;
 }
 function 格式概览(o) {
+  const 拒收 = o["溢出拒收"] || 0;
+  const 归档 = o["溢出归档"] || 0;
   return [
-    ["观测点", o["观测点"] || 0],
-    ["在缓冲", o["在缓冲"] || 0],
-    ["窗切片", o["窗切片"] || 0],
-    ["迟到", o["迟到"] || 0],
+    ["观测点", o["观测点"] || 0, "", ""],
+    ["在缓冲", o["在缓冲"] || 0, "", ""],
+    ["窗切片", o["窗切片"] || 0, "", ""],
+    ["迟到", o["迟到"] || 0, 拒收 ? "警" : "", ""],
+    ["溢出拒收", 拒收, 拒收 ? "危" : "", ""],
+    ["溢入归档", 归档, 归档 ? "警" : "", ""],
   ];
 }
 function 渲染水位(el, overview) {
   if (!el) return;
   el.innerHTML = "";
-  for (const [标, 值] of 格式概览(overview || {})) {
+  for (const [标, 值, 类, 副] of 格式概览(overview || {})) {
     const d = document.createElement("div");
-    d.className = "水卡";
-    d.innerHTML = `<div class="数">${值}</div><div class="标">${标}</div>`;
+    d.className = "水卡 " + (类 || "");
+    d.innerHTML = `<div class="数">${值}</div><div class="标">${标}</div>` +
+      (副 ? `<div class="副">${安全文本(副)}</div>` : "");
     el.appendChild(d);
   }
 }
@@ -50,7 +55,8 @@ function 窗规一行(rules) {
 }
 function 装载摘要(report) {
   if (!report) return "";
-  return `入流 ${report["入流"] || 0} / 入缓冲 ${report["入缓冲"] || 0} / 迟到 ${report["迟到"] || 0} / 驳回 ${report["驳回"] || 0}`;
+  const 溢 = report["归档"] ? ` / 归档 ${report["归档"]}` : "";
+  return `入流 ${report["入流"] || 0} / 入缓冲 ${report["入缓冲"] || 0} / 迟到 ${report["迟到"] || 0} / 驳回 ${report["驳回"] || 0}${溢}`;
 }
 function 关窗摘要(report) {
   if (!report) return "";

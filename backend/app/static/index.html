@@ -71,10 +71,29 @@
         <div class="工具">
           <button class="按钮" id="灌成片">灌窗内成片样例</button>
           <button class="按钮 次" id="灌迟到">灌迟到样例</button>
+          <button class="按钮 次" id="灌超阈">灌超阈样例</button>
           <button class="按钮 青" id="关窗">关当前窗</button>
           <button class="按钮 次" id="贯验">跑窗贯验</button>
         </div>
         <pre class="回执" id="回执">操作回执会显示在这里</pre>
+      </section>
+      <section class="卷">
+        <h2>缓冲溢出策略（与窗规同票）</h2>
+        <p class="说明">阈值 0 表示不限，照单全收。超阈后：<b>切流拒</b>整票拒并钉水位指纹，现行缓冲不增；<b>双写归档</b>阈内进缓冲、溢出点进只读归档旁路，两轨读引用不同。</p>
+        <div class="工具">
+          <label>入窗缓冲阈值
+            <input id="阈值" type="number" min="0" step="1" style="width:96px"/>
+          </label>
+          <label>溢出策略
+            <select id="策略">
+              <option value="切流拒">切流拒（超阈整票拒+水位指纹）</option>
+              <option value="双写归档">双写归档（溢出点进只读旁路）</option>
+            </select>
+          </label>
+          <button class="按钮 青" id="存规">存窗规</button>
+        </div>
+        <div class="表绕"><table><thead><tr><th>窗号</th><th>阈值</th><th>策略</th><th>现行条数</th><th>valid</th><th>拒因/归档键</th><th>水位指纹</th></tr></thead>
+          <tbody id="裁决表"></tbody></table></div>
       </section>
       <script>
       async function 刷新() {
@@ -83,6 +102,20 @@
         document.getElementById("尺起").textContent = (r["窗起"] || "窗起").slice(11, 16) || "窗起";
         document.getElementById("尺止").textContent = (r["窗止"] || "窗止").slice(11, 16) || "窗止";
         潮切.渲染水位(document.getElementById("水位"), o);
+        const 阈 = document.getElementById("阈值");
+        const 策 = document.getElementById("策略");
+        if (document.activeElement !== 阈) 阈.value = r["入窗缓冲阈值"] ?? "0";
+        策.value = r["缓冲溢出策略"] || "切流拒";
+        await 刷裁决();
+      }
+      async function 刷裁决() {
+        const a = await 潮切.getJSON("/api/溢出裁决");
+        const tb = document.getElementById("裁决表");
+        const 状态 = a.valid ? 潮切.徽章("valid","好") : 潮切.徽章("超阈","危");
+        const 因 = a["归档键"] ? `归档键 ${潮切.安全文本(a["归档键"])}` : 潮切.安全文本(a["拒因"] || "—");
+        tb.innerHTML = 潮切.行(`<td>${潮切.安全文本(a["窗号"])}</td><td>${a["阈值"]}</td>` +
+          `<td>${潮切.安全文本(a["策略"])}</td><td>${a["现行条数"]}</td><td>${状态}</td>` +
+          `<td>${因}</td><td>${潮切.安全文本(a["水位指纹"] || "—")}</td>`);
       }
       async function 跑(fn) {
         const el = document.getElementById("回执");
@@ -93,8 +126,13 @@
       }
       document.getElementById("灌成片").onclick = () => 跑(() => 潮切.postJSON("/api/观测点/夹具/窗内成片样例"));
       document.getElementById("灌迟到").onclick = () => 跑(() => 潮切.postJSON("/api/观测点/夹具/迟到样例"));
+      document.getElementById("灌超阈").onclick = () => 跑(() => 潮切.postJSON("/api/观测点/夹具/超阈样例"));
       document.getElementById("关窗").onclick = () => 跑(() => 潮切.postJSON("/api/关窗/跑"));
       document.getElementById("贯验").onclick = () => 跑(() => 潮切.postJSON("/api/窗贯验/跑"));
+      document.getElementById("存规").onclick = () => 跑(() => 潮切.postJSON("/api/窗规", {
+        "入窗缓冲阈值": document.getElementById("阈值").value || "0",
+        "缓冲溢出策略": document.getElementById("策略").value,
+      }));
       刷新();
       </script>
 

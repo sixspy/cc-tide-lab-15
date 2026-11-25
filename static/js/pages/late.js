@@ -20,6 +20,10 @@ export function fateChip(fate) {
     "已物化": "ok",
     "已成片": "ok",
     "已迟到": "warn",
+    "已拒溢出": "danger",
+    "已溢归档": "warn",
+    "溢出拒收": "danger",
+    "溢入归档": "warn",
     "撕裂": "danger",
     "对齐": "ok",
   };
@@ -33,7 +37,8 @@ export function windowLabel(rules) {
 
 export function summarizeLoad(report) {
   if (!report) return "无装载回执";
-  return `入流 ${report["入流"] || 0} · 入缓冲 ${report["入缓冲"] || 0} · 迟到 ${report["迟到"] || 0} · 驳回 ${report["驳回"] || 0}`;
+  const 档 = report["归档"] ? ` · 归档 ${report["归档"]}` : "";
+  return `入流 ${report["入流"] || 0} · 入缓冲 ${report["入缓冲"] || 0} · 迟到 ${report["迟到"] || 0} · 驳回 ${report["驳回"] || 0}${档}`;
 }
 
 export function summarizeClose(report) {
@@ -69,6 +74,8 @@ export function buildMetricCards(overview) {
     { key: "在缓冲", value: o["在缓冲"] || 0, hint: "未关窗物化" },
     { key: "窗切片", value: o["窗切片"] || 0, hint: "关窗产物笔数" },
     { key: "迟到", value: o["迟到"] || 0, hint: "事件时出窗" },
+    { key: "溢出拒收", value: o["溢出拒收"] || 0, hint: "超阈整票拒·水位指纹" },
+    { key: "溢入归档", value: o["溢出归档"] || 0, hint: "超阈只读归档旁路" },
   ];
 }
 
